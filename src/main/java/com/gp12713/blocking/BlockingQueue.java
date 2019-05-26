@@ -2,6 +2,7 @@ package com.gp12713.blocking;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 场景：场地接待，经理发起邀约，给门卫及受约人发短信接待验证码
@@ -9,15 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class BlockingQueue {
     //FIFO的队列
     ArrayBlockingQueue<String> queue = new ArrayBlockingQueue(5);
-
-    public static void main(String[] args) throws InterruptedException{
-        BlockingQueue bq = new BlockingQueue();
-        bq.receive();
-        for (int i = 0; i < 20; i++) {
-            bq.sendMessage("validateCode:"+String.valueOf(ThreadLocalRandom.current().nextInt(10000)));
-        }
-    }
-
+    static AtomicInteger atomicInteger=new AtomicInteger(0);
     /**
      * 发送验证码
      * @param data
@@ -26,6 +19,7 @@ public class BlockingQueue {
     public void sendMessage(String data) throws InterruptedException{
         queue.add(data);
         System.out.println(String.format("sendMessage %s", data));
+
         Thread.sleep(1000);
     }
 
@@ -37,6 +31,7 @@ public class BlockingQueue {
             while (true) {
                 try {
                     String validateCode = queue.take();
+                    System.out.println("atomicInteger.incrementAndGet():"+atomicInteger.incrementAndGet());
                     System.out.println(String.format("receive %s", validateCode));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
